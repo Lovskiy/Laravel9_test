@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
@@ -17,6 +18,7 @@ Route::group(['middleware' => ['ApiAuth', 'ApiClient']], function () {
     Route::post('cart/{id}', [CartController::class, 'addCart']);
     Route::get('cart', [CartController::class, 'showCart']);
     Route::delete('cart/{id}', [CartController::class, 'destroyCart']);
+    Route::post('order', [OrderController::class, 'OrderCreate']);
 //    Route::get('logout', [AuthController::class, 'logout']);
 });
 

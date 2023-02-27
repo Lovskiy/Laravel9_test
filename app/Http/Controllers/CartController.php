@@ -17,11 +17,13 @@ class CartController extends Controller
         $user = User::where('user_token', '=', $token)->first();
         $product = Product::where('id', '=', $id)->first();
 
-        if (!$product) return response()->json([
-            'data' => [
-                'message' => 'Product not found'
-            ]
-        ]);
+        if (!$product) {
+            return response()->json([
+                'data' => [
+                    'message' => 'Product not found'
+                ]
+            ]);
+        }
 
         $productCart = ProductCart::create([
             'user_id' => $user->id,
@@ -29,10 +31,11 @@ class CartController extends Controller
         ]);
 
         return response()->json([
-                'data' => [
-                    'message' => 'Product add to card'
-                ]
-            ], 201
+            'data' => [
+                'message' => 'Product add to card'
+            ]
+        ],
+            201
         );
     }
 
@@ -42,7 +45,7 @@ class CartController extends Controller
 
         $user = User::where('user_token', '=', $token)->first();
         $productCart = ProductCart::where('user_id', '=', $user->id)->get();
-        return response()->json(['data'=>$productCart]);
+        return response()->json(['data' => $productCart]);
 
 //        $productGet = Product::where('id', '=', $productCart->product_id)->get();
 //
@@ -55,29 +58,34 @@ class CartController extends Controller
 
     public function destroyCart(Request $request, int $id)
     {
-        $token = $request->bearerToken();
+        $cart = ProductCart::where('id', $id)->first();
+        if (!$cart) return response()->json([
+            'data' => [
+                'message' => 'Cart not found'
+            ]
+        ]);
 
-        $user = User::where('user_token', '=', $token)->first();
-        $productCart = ProductCart::where('user_id', '=', $user->id)->first();
-//        return $productCart->user_id;
-
-        if ($user->id != $productCart->user_id) {
-            return response()->json([
-                'data' => [
-                    'code' => 403,
-                    'message' => 'Forbidden for you'
+        $user = User::where('user_token', $request->bearerToken())->first();
+        if ($user->id != $cart->user_id) {
+            return response()->json(
+                [
+                    'error' => [
+                        'code' => 403,
+                        'message' => 'Forbidden for you'
+                    ]
                 ]
-            ], 403);
-        }else{
-            ProductCart::destroy($id);
-
-            return response()->json([
-                'data' => [
-                    'message' => 'Item removed from cart'
-                ]
-            ], 200);
+            );
         }
 
+        if (ProductCart::destroy($id)) {
+            return response()->json(
+                [
+                    'data' => [
+                        'message' => 'Item removed from cart'
+                    ]
+                ]
+            );
+        }
     }
 
     /**
