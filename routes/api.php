@@ -19,6 +19,7 @@ Route::group(['middleware' => ['ApiAuth', 'ApiClient']], function () {
     Route::get('cart', [CartController::class, 'showCart']);
     Route::delete('cart/{id}', [CartController::class, 'destroyCart']);
     Route::post('order', [OrderController::class, 'OrderCreate']);
+    Route::get('order', [OrderController::class, 'OrderList']);
 //    Route::get('logout', [AuthController::class, 'logout']);
 });
 

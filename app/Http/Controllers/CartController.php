@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductCart;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductCardResource;
 
 class CartController extends Controller
 {
@@ -41,20 +42,12 @@ class CartController extends Controller
 
     public function showCart(Request $request)
     {
-        $token = $request->bearerToken();
+        $user = User::where('user_token', $request->bearerToken())->first();
 
-        $user = User::where('user_token', '=', $token)->first();
-        $productCart = ProductCart::where('user_id', '=', $user->id)->get();
-        return response()->json(['data' => $productCart]);
-
-//        $productGet = Product::where('id', '=', $productCart->product_id)->get();
-//
-//        return response()->json([
-//            'data' => [
-//                $productGet
-//            ]
-//        ], 200);
+        $products = ProductCart::where('user_id', $user->id)->get();
+        return ProductCardResource::collection($products);
     }
+
 
     public function destroyCart(Request $request, int $id)
     {
@@ -63,7 +56,7 @@ class CartController extends Controller
             'data' => [
                 'message' => 'Cart not found'
             ]
-        ]);
+        ], 403);
 
         $user = User::where('user_token', $request->bearerToken())->first();
         if ($user->id != $cart->user_id) {
@@ -73,7 +66,7 @@ class CartController extends Controller
                         'code' => 403,
                         'message' => 'Forbidden for you'
                     ]
-                ]
+                ], 403
             );
         }
 
@@ -83,7 +76,7 @@ class CartController extends Controller
                     'data' => [
                         'message' => 'Item removed from cart'
                     ]
-                ]
+                ], 200
             );
         }
     }

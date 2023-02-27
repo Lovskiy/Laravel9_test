@@ -93,19 +93,11 @@ class AuthController extends Controller
 
     }
 
-    public function TestSession(Request $request)
-    {
-    }
+
 
     public function logout(Request $request)
     {
-//        $user->user_token->delete();
-//
-//        return response()->json([
-//            'data' => [
-//                'message' => 'logout'
-//            ]
-//        ]);
+        $user = User::where('user_token', $request->bearerToken())->first();
     }
 
     /**
